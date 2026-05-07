@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #d4a017;
+  --color-gold-light: #fdf3d0;
+  --color-gold-pale: #fef9e7;
+  --color-green: #5b7f3b;
+  --color-green-light: #e3edda;
+  --color-green-dark: #3d5a27;
+  --color-brown: #3a2e1f;
+  --color-brown-mid: #6a5a44;
+  --color-brown-light: #a09480;
+  --color-cream: #fdf8ed;
+  --color-cream-dark: #f5ead0;
+  --font-display: "Shippori Mincho B1", serif;
+  --font-heading: "Klee One", serif;
+  --font-body: "Zen Kaku Gothic New", sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  color: var(--color-brown);
+  background: var(--color-cream);
+  -webkit-font-smoothing: antialiased;
+}
+
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: 0.15s; }
+.reveal-d2 { transition-delay: 0.30s; }
+.reveal-d3 { transition-delay: 0.45s; }
+
+@keyframes stamp-pop {
+  0% { transform: scale(0) rotate(-20deg); }
+  60% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.stamp-pop { animation: stamp-pop 0.5s ease-out both; }
