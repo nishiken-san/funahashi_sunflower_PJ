@@ -28,7 +28,7 @@ export async function getSession() {
 }
 
 // provider を "google" | "github" で切り替え可能
-const OAUTH_PROVIDER: "google" | "github" = "github";
+const OAUTH_PROVIDER: "google" | "github" = "google";
 
 export async function signInWithGoogle(next = "/stamp") {
   const supabase = createClient();
@@ -60,7 +60,7 @@ export async function fetchProfile(): Promise<UserProfile | null> {
   const { data } = await supabase
     .from("profiles")
     .select("id, name, avatar_url")
-    .single();
+    .maybeSingle(); // 0件のとき null を返す（.single()は406エラーになる）
   return data;
 }
 
