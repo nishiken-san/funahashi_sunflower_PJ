@@ -19,6 +19,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // --- 1b. プロフィール自動作成（外部キー制約対策） ---
+    // stamps.user_id は profiles.id を参照するため、プロフィールが必須
+    const admin = createAdminClient();
+    const { data: existingProfile } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!existingProfile) {
+      const name = (user.user_metadata?.name || user.user_metadata?.full_name || "") as string;
+      const avatar_url = (user.user_metadata?.avatar_url || user.user_metadata?.picture || null) as string | null;
+      const { error: profileErr } = await admin
+        .from("profiles")
+        .insert({ id: user.id, name, avatar_url });
+      if (profileErr) {
+        console.error("[claim] Profile creation error:", profileErr);
+        return NextResponse.json(
+          { error: `プロフィール作成失敗: ${profileErr.message}` },
+          { status: 500 }
+        );
+      }
+    }
+
     // --- 2. リクエストボディの検証 ---
     const body = await req.json();
     const { type, year = 2026, photoPath, lat, lng } = body as {
@@ -47,7 +71,6 @@ export async function POST(req: NextRequest) {
     }
 
     // --- 3. イベント期間チェック（未設定時はGPS不要でOK） ---
-    const admin = createAdminClient();
     const { data: event } = await admin
       .from("active_events")
       .select("*")
@@ -108,9 +131,9 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error("Stamp insert error:", insertError);
+      console.error("[claim] Stamp insert error:", insertError);
       return NextResponse.json(
-        { error: "スタンプの登録に失敗しました" },
+        { error: `スタンプ登録失敗: ${insertError.message}（コード: ${insertError.code ?? "不明"}）` },
         { status: 500 }
       );
     }
@@ -124,9 +147,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ stamp }, { status: 201 });
 
   } catch (error) {
-    console.error("Claim error:", error);
+    console.error("[claim] Unexpected error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "サーバーエラーが発生しました" },
+      { error: `サーバーエラー: ${msg}` },
       { status: 500 }
     );
   }

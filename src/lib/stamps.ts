@@ -84,11 +84,30 @@ export async function syncGoogleAvatar(): Promise<void> {
 
 export async function fetchProfile(): Promise<UserProfile | null> {
   const supabase = createClient();
-  const { data } = await supabase
+
+  // ログイン中のユーザーを確認
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  // プロフィールを取得
+  const { data: existing } = await supabase
     .from("profiles")
     .select("id, name, avatar_url")
-    .maybeSingle(); // 0件のとき null を返す（.single()は406エラーになる）
-  return data;
+    .maybeSingle();
+
+  if (existing) return existing;
+
+  // プロフィールがない場合は自動作成（トリガー未発火の保険）
+  const name = (user.user_metadata?.name || user.user_metadata?.full_name || "") as string;
+  const avatar_url = (user.user_metadata?.avatar_url || user.user_metadata?.picture || null) as string | null;
+
+  const { data: created } = await supabase
+    .from("profiles")
+    .insert({ id: user.id, name, avatar_url })
+    .select("id, name, avatar_url")
+    .single();
+
+  return created;
 }
 
 export async function updateProfile(updates: { name?: string; avatar_url?: string }) {

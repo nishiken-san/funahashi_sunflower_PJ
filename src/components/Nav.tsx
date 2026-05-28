@@ -110,6 +110,10 @@ export default function Nav() {
                 className="block py-3 px-4 text-base text-gold font-[Klee_One] font-semibold rounded-xl hover:bg-gold-pale transition">
                 🌻 {userName ? `${userName}のマイページ` : "ログイン / 新規登録"}
               </Link>
+              <Link href="/me" onClick={() => setMenuOpen(false)}
+                className="block py-3 px-4 text-sm text-brown-light font-[Klee_One] rounded-xl hover:bg-gold-pale transition">
+                🔍 アカウント診断
+              </Link>
             </div>
           </div>
         </div>

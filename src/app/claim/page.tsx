@@ -11,6 +11,7 @@ import {
 } from "@/lib/stamps";
 import { checkLocation } from "@/lib/geo";
 import type { GeoResult } from "@/lib/geo";
+import GPSPermissionHelp from "@/components/GPSPermissionHelp";
 
 type Step = "loading" | "needLogin" | "alreadyHave" | "gps" | "photo" | "uploading" | "done" | "error";
 
@@ -178,6 +179,8 @@ function ClaimInner() {
             <button onClick={() => setStep("photo")} className="block mx-auto mt-3 text-xs text-brown-light underline">
               スキップする
             </button>
+            {/* 位置情報の許可方法を表示 */}
+            <GPSPermissionHelp />
           </Card>
         )}
 
@@ -246,7 +249,15 @@ function ClaimInner() {
           <Card>
             <div className="text-center">
               <div className="text-4xl mb-3">⚠️</div>
-              <p className="text-sm text-brown-mid mb-4">{errorMsg}</p>
+              <p className="text-sm text-brown-mid mb-2">スタンプの取得に失敗しました</p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-left">
+                <p className="text-[11px] text-red-700 font-mono break-all">
+                  {errorMsg}
+                </p>
+              </div>
+              <p className="text-[11px] text-brown-light mb-4 leading-relaxed">
+                ※ 認証情報に問題がある場合は<Link href="/me" className="text-gold underline">診断ページ</Link>で状態を確認できます
+              </p>
               <button onClick={() => setStep("photo")} className="text-xs text-brown-light underline mr-4">
                 もう一度試す
               </button>
