@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  @unique
+  avatarUrl String?
+  provider  String   @default("credentials") // "google" | "credentials"
+  googleId  String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stamps Stamp[]
+  photos Photo[]
+}
+
+model Stamp {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String   // "seed" | "water" | "bloom" | "harvest" | "photo" | "home"
+  year       Int      @default(2026)
+  acquiredAt DateTime @default(now())
+  photoId    String?  // 取得時の写真（任意）
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photo Photo? @relation(fields: [photoId], references: [id])
+
+  @@unique([userId, type, year]) // 同一ユーザー・同一タイプ・同一年度で1回のみ
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  userId    String
+  filename  String   // サーバー上のファイルパス（公開URLではない）
+  mimeType  String   @default("image/jpeg")
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stamps Stamp[]
+}

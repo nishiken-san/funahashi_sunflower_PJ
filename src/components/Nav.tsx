@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProfile } from "@/lib/stamps";
+import { fetchProfile } from "@/lib/stamps";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -12,11 +12,12 @@ export default function Nav() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll, { passive: true });
-    const profile = getProfile();
-    if (profile) {
-      setUserName(profile.name);
-      setAvatarUrl(profile.avatarUrl || null);
-    }
+    fetchProfile().then(profile => {
+      if (profile) {
+        setUserName(profile.name);
+        setAvatarUrl(profile.avatar_url || null);
+      }
+    }).catch(() => {});
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 

@@ -1,6 +1,5 @@
 import { FIELD_CENTER } from "@/config/contract";
 
-// Haversine formula
 function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -14,25 +13,25 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): 
 export interface GeoResult {
   ok: boolean;
   distance?: number;
+  lat?: number;
+  lng?: number;
   error?: string;
 }
 
 export function checkLocation(): Promise<GeoResult> {
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      resolve({ ok: true }); // GPS非対応の場合は許可
+      resolve({ ok: true });
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const dist = getDistanceKm(
-          pos.coords.latitude, pos.coords.longitude,
-          FIELD_CENTER.lat, FIELD_CENTER.lng
-        );
+        const { latitude: lat, longitude: lng } = pos.coords;
+        const dist = getDistanceKm(lat, lng, FIELD_CENTER.lat, FIELD_CENTER.lng);
         if (dist <= FIELD_CENTER.radiusKm) {
-          resolve({ ok: true, distance: dist });
+          resolve({ ok: true, distance: dist, lat, lng });
         } else {
-          resolve({ ok: false, distance: dist, error: `畑から${dist.toFixed(1)}km離れています` });
+          resolve({ ok: false, distance: dist, lat, lng, error: `畑から${dist.toFixed(1)}km離れています` });
         }
       },
       () => {
