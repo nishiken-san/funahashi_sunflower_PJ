@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Nav from "@/components/Nav";
 import {
   getSession, signInWithGoogle, signInWithEmail, signOut,
-  fetchProfile, updateProfile, uploadAvatar,
+  fetchProfile, updateProfile, uploadAvatar, syncGoogleAvatar,
 } from "@/lib/stamps";
 import type { UserProfile } from "@/lib/stamps";
 
@@ -25,8 +25,10 @@ function LoginInner() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    getSession().then(session => {
+    getSession().then(async session => {
       if (!session) { setProfile(null); return; }
+      // Googleアバターを未設定なら自動同期してからプロフィールを取得
+      await syncGoogleAvatar().catch(() => null);
       fetchProfile().then(p => {
         setProfile(p);
         if (p) { setName(p.name); setAvatarPreview(p.avatar_url || null); }

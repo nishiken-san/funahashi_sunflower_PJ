@@ -55,6 +55,33 @@ export async function signOut() {
 
 // ===== プロフィール =====
 
+// Googleログイン時にアバターをプロフィールへ自動同期（未設定の場合のみ）
+export async function syncGoogleAvatar(): Promise<void> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // Googleメタデータからアバター取得（avatar_url または picture）
+  const googleAvatar =
+    user.user_metadata?.avatar_url ||
+    user.user_metadata?.picture ||
+    null;
+  if (!googleAvatar) return;
+
+  // プロフィールに未設定の場合のみ反映（手動変更を上書きしない）
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .maybeSingle();
+
+  if (!profile?.avatar_url) {
+    await supabase
+      .from("profiles")
+      .update({ avatar_url: googleAvatar })
+      .eq("id", user.id);
+  }
+}
+
 export async function fetchProfile(): Promise<UserProfile | null> {
   const supabase = createClient();
   const { data } = await supabase

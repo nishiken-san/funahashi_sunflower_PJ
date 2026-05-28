@@ -8,7 +8,7 @@ import { BASIC_STAMPS, BONUS_STAMPS, GROWTH_STAGES, REWARDS } from "@/config/con
 import type { StampDef } from "@/config/contract";
 import {
   fetchProfile, fetchStamps, hasStampInList, getBasicCountFromList,
-  getPhotoUrl, signOut,
+  getPhotoUrl, signOut, syncGoogleAvatar,
 } from "@/lib/stamps";
 import type { UserProfile, StampRecord } from "@/lib/stamps";
 
@@ -18,10 +18,14 @@ export default function StampPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    Promise.all([fetchProfile(), fetchStamps()])
-      .then(([p, s]) => { setProfile(p); setStamps(s); })
-      .catch(() => setProfile(null))
-      .finally(() => setMounted(true));
+    syncGoogleAvatar()
+      .catch(() => null)
+      .finally(() => {
+        Promise.all([fetchProfile(), fetchStamps()])
+          .then(([p, s]) => { setProfile(p); setStamps(s); })
+          .catch(() => setProfile(null))
+          .finally(() => setMounted(true));
+      });
   }, []);
 
   if (!mounted) return null;

@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // 全リクエストでセッションCookieを更新
 // これによりセッション切れを防ぐ
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
