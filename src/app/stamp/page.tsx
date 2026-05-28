@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { BASIC_STAMPS, BONUS_STAMPS, GROWTH_STAGES, REWARDS } from "@/config/contract";
+import { STAMPS, BASIC_STAMPS, BONUS_STAMPS, GROWTH_STAGES, REWARDS } from "@/config/contract";
 import type { StampDef } from "@/config/contract";
 import {
-  fetchProfile, fetchStamps, hasStampInList, getBasicCountFromList,
+  getSession, fetchProfile, fetchStamps, hasStampInList, getBasicCountFromList,
   getPhotoUrl, signOut, syncGoogleAvatar,
 } from "@/lib/stamps";
 import type { UserProfile, StampRecord } from "@/lib/stamps";
@@ -18,21 +18,45 @@ export default function StampPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    syncGoogleAvatar()
-      .catch(() => null)
-      .finally(() => {
-        Promise.all([fetchProfile(), fetchStamps()])
-          .then(([p, s]) => { setProfile(p); setStamps(s); })
-          .catch(() => setProfile(null))
-          .finally(() => setMounted(true));
-      });
+    const init = async () => {
+      try {
+        // セッション確認を最初に行う
+        const session = await getSession();
+        if (!session) {
+          setProfile(null);
+          return;
+        }
+        // Googleアバター同期（失敗しても続行）
+        await syncGoogleAvatar().catch(() => null);
+        // プロフィールとスタンプを独立して取得（片方が失敗しても両方表示）
+        const [p, s] = await Promise.all([
+          fetchProfile().catch(() => null),
+          fetchStamps().catch(() => []),
+        ]);
+        setProfile(p);
+        setStamps(s ?? []);
+      } catch {
+        setProfile(null);
+      } finally {
+        setMounted(true);
+      }
+    };
+    init();
   }, []);
 
-  if (!mounted) return null;
+  // ローディング中はスピナー表示（null返却だと何も見えない）
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <span className="text-4xl animate-pulse">🌻</span>
+      </div>
+    );
+  }
 
   const basicCount = getBasicCountFromList(stamps);
   const totalCount = stamps.length;
   const isComplete = basicCount >= 4;
+  const photoStamps = stamps.filter(s => s.photo_path);
 
   // ===== 未ログイン → プレビュー =====
   if (!profile) {
@@ -164,6 +188,67 @@ export default function StampPage() {
             ))}
           </div>
 
+          {/* ===== フォトアルバム ===== */}
+          {photoStamps.length > 0 && (
+            <div className="bg-white rounded-2xl p-5 mb-6 border border-brown/6">
+              <h3 className="font-[Klee_One] text-sm text-brown font-semibold mb-3 flex items-center gap-2">
+                <span className="w-5 h-0.5 bg-gold inline-block" /> フォトアルバム
+              </h3>
+              <div className="grid grid-cols-3 gap-2">
+                {photoStamps.map(s => (
+                  <AlbumPhoto key={s.id} record={s} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ===== スタンプ履歴 ===== */}
+          <div className="bg-white rounded-2xl p-5 mb-6 border border-brown/6">
+            <h3 className="font-[Klee_One] text-sm text-brown font-semibold mb-3 flex items-center gap-2">
+              <span className="w-5 h-0.5 bg-brown/20 inline-block" /> 取得履歴
+            </h3>
+            {stamps.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-xs text-brown-light">まだスタンプがありません</p>
+                <p className="text-[10px] text-brown-light mt-1">イベントに参加してスタンプを集めましょう</p>
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {[...stamps]
+                  .sort((a, b) => new Date(b.acquired_at).getTime() - new Date(a.acquired_at).getTime())
+                  .map((s, i, arr) => {
+                    const def = STAMPS.find(d => d.type === s.type);
+                    return (
+                      <div
+                        key={s.id}
+                        className={`flex items-center gap-3 py-3 ${i < arr.length - 1 ? "border-b border-brown/6" : ""}`}
+                      >
+                        <div className="w-9 h-9 rounded-full bg-cream flex items-center justify-center text-lg shrink-0">
+                          {def?.icon ?? "🌻"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-brown font-semibold font-[Klee_One]">
+                            {def?.name ?? s.type}スタンプ
+                          </p>
+                          <p className="text-[10px] text-brown-light">
+                            {new Date(s.acquired_at).toLocaleDateString("ja-JP", {
+                              year: "numeric", month: "long", day: "numeric",
+                            })} 取得
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {s.photo_path && (
+                            <span className="text-[10px] text-brown-light bg-brown/5 px-1.5 py-0.5 rounded-full">📷</span>
+                          )}
+                          <span className="text-[10px] text-green bg-green/10 px-1.5 py-0.5 rounded-full">取得済</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+
           {/* 種まき成長ステージ */}
           {hasStampInList(stamps, "seed") && (
             <div className="bg-white rounded-2xl p-5 mb-6 border border-brown/6">
@@ -246,7 +331,7 @@ export default function StampPage() {
   );
 }
 
-// スタンプスロット（写真URLは遅延ロード）
+// ===== スタンプスロット（写真URLは遅延ロード）=====
 function StampSlot({ stamp, record }: { stamp: StampDef; record?: StampRecord }) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
@@ -279,6 +364,40 @@ function StampSlot({ stamp, record }: { stamp: StampDef; record?: StampRecord })
       {stamp.isBonus && !acquired && (
         <span className="inline-block mt-1 text-[9px] text-gold bg-gold-pale px-1.5 py-0.5 rounded-full">ボーナス</span>
       )}
+    </div>
+  );
+}
+
+// ===== フォトアルバムのサムネイル =====
+function AlbumPhoto({ record }: { record: StampRecord }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const def = STAMPS.find(d => d.type === record.type);
+
+  useEffect(() => {
+    if (record.photo_path) {
+      getPhotoUrl(record.photo_path).then(u => setUrl(u || null)).catch(() => null);
+    }
+  }, [record.photo_path]);
+
+  return (
+    <div className="relative aspect-square rounded-xl overflow-hidden bg-brown/5">
+      {url ? (
+        <img
+          src={url}
+          alt={def?.name ?? ""}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-2xl">
+          {def?.icon ?? "🌻"}
+        </div>
+      )}
+      {/* スタンプ名ラベル */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1.5">
+        <p className="text-[9px] text-white font-[Klee_One] text-center leading-tight">
+          {def?.name}
+        </p>
+      </div>
     </div>
   );
 }
