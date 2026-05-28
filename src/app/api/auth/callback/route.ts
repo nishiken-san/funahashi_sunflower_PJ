@@ -1,20 +1,48 @@
+import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
-import { createServerComponentClient } from "@/lib/supabase-server";
 
-// Supabase Auth のOAuth/マジックリンクのコールバック
+// Supabase Auth の OAuth / マジックリンク コールバック
+// 重要: response.cookies.set() でセッションCookieを直接セットする必要がある。
+// cookies()経由でsetしても NextResponse.redirect() のレスポンスには乗らない。
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
+  const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") || "/stamp";
+  const next = searchParams.get("next") ?? "/stamp";
+
+  // オープンリダイレクト対策: /始まりのパスのみ許可
+  const safeNext = next.startsWith("/") ? next : "/stamp";
 
   if (code) {
-    const supabase = await createServerComponentClient();
+    // リダイレクトレスポンスを先に作成し、CookieをそのResponseに直接セット
+    const response = NextResponse.redirect(`${origin}${safeNext}`);
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          // リクエストの既存Cookieを読み取る
+          getAll() {
+            return req.cookies.getAll();
+          },
+          // セッションCookieをリダイレクトレスポンスに直接書き込む
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options);
+            });
+          },
+        },
+      }
+    );
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(new URL(next, req.url));
+      return response; // Set-Cookie ヘッダー付きでリダイレクト
     }
+
+    console.error("[auth/callback] exchangeCodeForSession error:", error.message);
   }
 
-  // エラー時はログインページへ
-  return NextResponse.redirect(new URL("/login?error=auth_failed", req.url));
+  // codeなし or エラー → ログインページへ
+  return NextResponse.redirect(`${origin}/login?error=auth_failed`);
 }

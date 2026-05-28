@@ -27,10 +27,13 @@ export async function getSession() {
   return session;
 }
 
+// provider を "google" | "github" で切り替え可能
+const OAUTH_PROVIDER: "google" | "github" = "github";
+
 export async function signInWithGoogle(next = "/stamp") {
   const supabase = createClient();
   const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
+    provider: OAUTH_PROVIDER,
     options: { redirectTo: `${location.origin}/api/auth/callback?next=${encodeURIComponent(next)}` },
   });
   if (error) throw error;

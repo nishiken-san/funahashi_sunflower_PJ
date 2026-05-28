@@ -229,7 +229,7 @@ export default function StampPage() {
           </div>
 
           <button
-            onClick={async () => { await signOut(); window.location.reload(); }}
+            onClick={async () => { await signOut(); window.location.href = "/"; }}
             className="block mx-auto text-[10px] text-brown-light underline mt-4"
           >
             ログアウト
