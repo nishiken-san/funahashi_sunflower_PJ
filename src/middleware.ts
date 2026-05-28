@@ -35,7 +35,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // 静的ファイル以外の全ルートに適用
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // 静的ファイル + /api/auth（OAuthコールバック）を除外
+    // /api/auth を除外しないとPKCE code_verifier クッキーを破壊する
+    "/((?!_next/static|_next/image|favicon.ico|api/auth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

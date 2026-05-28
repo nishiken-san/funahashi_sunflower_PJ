@@ -13,6 +13,8 @@ function LoginInner() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/stamp";
+  const errorCode = params.get("error");
+  const errorDesc = params.get("desc");
 
   const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
   const [tab, setTab] = useState<"google" | "email">("google");
@@ -21,7 +23,18 @@ function LoginInner() {
   const [name, setName] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => {
+    // URLパラメータからエラー情報を取得
+    if (!errorCode) return null;
+    const labels: Record<string, string> = {
+      oauth: "OAuthプロバイダエラー",
+      exchange: "認証コード交換失敗",
+      no_code: "認証コードが渡されませんでした",
+      auth_failed: "認証失敗",
+    };
+    const label = labels[errorCode] ?? errorCode;
+    return errorDesc ? `${label}: ${errorDesc}` : label;
+  });
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
