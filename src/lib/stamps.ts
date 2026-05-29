@@ -176,7 +176,7 @@ export function getBasicCountFromList(stamps: StampRecord[]): number {
 
 export async function claimStamp(
   type: StampType,
-  options?: { photoPath?: string; lat?: number; lng?: number }
+  options?: { photoPath?: string; lat?: number; lng?: number; retake?: boolean }
 ): Promise<StampRecord> {
   const res = await fetch("/api/stamps/claim", {
     method: "POST",
@@ -186,6 +186,7 @@ export async function claimStamp(
       photoPath: options?.photoPath,
       lat: options?.lat,
       lng: options?.lng,
+      retake: options?.retake ?? false,
     }),
   });
 

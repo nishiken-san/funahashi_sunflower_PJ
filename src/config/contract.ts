@@ -53,10 +53,17 @@ export const GROWTH_STAGES = [
 ] as const;
 
 // ===== 特典 =====
-export const REWARDS = [
-  { stampsRequired: 1, title: "畑ライブカメラ", description: "自分の区画の映像にアクセス", icon: "📹" },
+export interface RewardDef {
+  stampsRequired: number;
+  title: string;
+  description: string;
+  icon: string;
+  comingSoon?: boolean;
+}
+export const REWARDS: readonly RewardDef[] = [
+  { stampsRequired: 1, title: "畑ライブカメラ", description: "自分の区画の映像にアクセス", icon: "📹", comingSoon: true },
   { stampsRequired: 2, title: "記念壁紙", description: "スマホ壁紙画像をダウンロード", icon: "📱" },
-  { stampsRequired: 3, title: "バーチャル畑", description: "バーチャル空間でひまわり畑を散歩", icon: "🌐" },
+  { stampsRequired: 3, title: "バーチャル畑", description: "バーチャル空間でひまわり畑を散歩", icon: "🌐", comingSoon: true },
   { stampsRequired: 4, title: "翌年先行オーナー権", description: "来年の区画を優先的に確保", icon: "⭐" },
 ] as const;
 

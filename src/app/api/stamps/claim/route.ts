@@ -45,12 +45,13 @@ export async function POST(req: NextRequest) {
 
     // --- 2. リクエストボディの検証 ---
     const body = await req.json();
-    const { type, year = 2026, photoPath, lat, lng } = body as {
+    const { type, year = 2026, photoPath, lat, lng, retake = false } = body as {
       type?: string;
       year?: number;
       photoPath?: string;
       lat?: number;
       lng?: number;
+      retake?: boolean;
     };
 
     // 許可されたスタンプタイプのみ受け付け
@@ -110,6 +111,24 @@ export async function POST(req: NextRequest) {
       .eq("type", type)
       .eq("year", year)
       .maybeSingle();
+
+    // 再取得（撮り直し）モード：既存スタンプの写真を更新するだけ
+    if (existing && retake) {
+      const { data: updated, error: updateError } = await admin
+        .from("stamps")
+        .update({ photo_path: photoPath || null })
+        .eq("id", existing.id)
+        .select()
+        .single();
+      if (updateError) {
+        console.error("[claim] Stamp update error:", updateError);
+        return NextResponse.json(
+          { error: `写真の更新に失敗: ${updateError.message}` },
+          { status: 500 }
+        );
+      }
+      return NextResponse.json({ stamp: updated, retaken: true }, { status: 200 });
+    }
 
     if (existing) {
       return NextResponse.json(

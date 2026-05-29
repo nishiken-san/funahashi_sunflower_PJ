@@ -82,7 +82,7 @@ export default function StampPage() {
       <>
         <Nav />
         <div className="pt-28 pb-24 bg-cream min-h-screen">
-          <div className="max-w-md mx-auto px-6">
+          <div className="max-w-md md:max-w-2xl mx-auto px-6">
             <h1 className="font-[Klee_One] text-xl text-brown font-semibold mb-2 text-center">スタンプラリー</h1>
             <p className="text-sm text-brown-mid mb-6 text-center">イベントに参加してスタンプを集めよう</p>
 
@@ -146,7 +146,7 @@ export default function StampPage() {
     <>
       <Nav />
       <div className="pt-28 pb-16 bg-cream min-h-screen">
-        <div className="max-w-md mx-auto px-6">
+        <div className="max-w-md md:max-w-2xl mx-auto px-6">
 
           {/* オーナーカード */}
           <div className="bg-gradient-to-br from-cream-dark via-[#ede0c0] to-gold-pale rounded-2xl p-5 mb-5 relative shadow-sm border border-brown/6 overflow-hidden">
@@ -319,17 +319,28 @@ export default function StampPage() {
             <div className="space-y-3">
               {REWARDS.map(r => {
                 const unlocked = totalCount >= r.stampsRequired;
+                const isComingSoon = r.comingSoon === true;
                 return (
                   <div key={r.title} className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 ${unlocked ? "bg-gold-pale" : "bg-brown/5"}`}>
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 ${
+                      isComingSoon ? "bg-brown/5 opacity-60" :
+                      unlocked ? "bg-gold-pale" : "bg-brown/5"
+                    }`}>
                       {r.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-brown font-semibold truncate">{r.title}</p>
+                      <p className={`text-xs font-semibold truncate ${isComingSoon ? "text-brown-light" : "text-brown"}`}>
+                        {r.title}
+                        {isComingSoon && (
+                          <span className="ml-2 inline-block text-[9px] text-gold bg-gold-pale px-1.5 py-0.5 rounded-full align-middle">準備中</span>
+                        )}
+                      </p>
                       <p className="text-[10px] text-brown-light">
-                        {unlocked
-                          ? <span className="text-green font-semibold">✓ アンロック済み</span>
-                          : `スタンプ${r.stampsRequired}つで解放`}
+                        {isComingSoon
+                          ? <span className="text-gold-light italic">※ 近日提供予定</span>
+                          : unlocked
+                            ? <span className="text-green font-semibold">✓ アンロック済み</span>
+                            : `スタンプ${r.stampsRequired}つで解放`}
                       </p>
                     </div>
                   </div>
@@ -345,9 +356,9 @@ export default function StampPage() {
             </h3>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { href: "/field", icon: "🗺️", label: "畑マップ", sub: "区画と成長を確認" },
+                { href: "/field", icon: "🗺️", label: "畑マップ", sub: "準備中", subColor: "text-gold" },
                 { href: "/submit", icon: "📸", label: "写真を投稿", sub: "ボーナススタンプ取得" },
-                { href: "/field", icon: "🌐", label: "バーチャル畑", sub: "準備中", subColor: "text-gold" },
+                { href: "/field", icon: "📹", label: "畑ライブカメラ", sub: "準備中", subColor: "text-gold" },
                 { href: "/owner", icon: "🌻", label: "オーナー情報", sub: "制度と申込" },
               ].map(item => (
                 <Link
