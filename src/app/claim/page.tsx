@@ -234,10 +234,24 @@ function ClaimInner() {
         {step === "done" && (
           <Card>
             <div className="text-center">
-              <div className="text-6xl mb-3 stamp-pop">{stamp.icon}</div>
-              <h2 className="font-[Klee_One] text-lg text-brown font-semibold mb-2">取得しました！</h2>
-              <p className="text-sm text-brown-mid mb-6">{stamp.name}スタンプを獲得しました</p>
-              <Link href="/stamp" className="inline-block bg-brown text-cream px-6 py-3 rounded-xl text-sm font-semibold hover:bg-brown/90 transition">
+              {/* リーリーが大きく祝福（祝賀バージョン） */}
+              <div className="relative -mt-10 mb-3">
+                <img
+                  src="/lily-celebrate.png"
+                  alt="おめでとう！"
+                  className="w-56 mx-auto stamp-pop drop-shadow-xl select-none"
+                />
+                {/* スタンプアイコンをバッジ */}
+                <div className="absolute top-2 right-1/4 w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center text-3xl ring-4 ring-gold/40 stamp-pop">
+                  {stamp.icon}
+                </div>
+              </div>
+              <h2 className="font-[Klee_One] text-xl text-brown font-bold mb-1">取得しました！</h2>
+              <p className="text-sm text-brown-mid mb-1">
+                <span className="font-semibold text-green">{stamp.name}</span> スタンプを獲得しました
+              </p>
+              <p className="text-[11px] text-brown-light mb-6">リーリーも喜んでます 🎉</p>
+              <Link href="/stamp" className="inline-block bg-brown text-cream px-7 py-3 rounded-xl text-sm font-semibold hover:bg-brown/90 transition shadow-md">
                 マイスタンプを見る →
               </Link>
             </div>

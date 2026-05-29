@@ -36,6 +36,7 @@ export default function Home() {
             この景色を本物にする ↓
           </Link>
         </div>
+
         {/* AI生成ラベル */}
         <div className="absolute bottom-8 right-8 z-10">
           <span className="text-[10px] text-white/40 font-[Klee_One] bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
@@ -89,8 +90,15 @@ export default function Home() {
           </Reveal>
 
           <Reveal>
-            <div className="bg-cream rounded-3xl p-8 md:p-10 border-l-4 border-gold mb-10">
-              <p className="font-[Klee_One] text-lg md:text-xl text-brown leading-relaxed">
+            <div className="bg-cream rounded-3xl p-8 md:p-10 border-l-4 border-gold mb-10 relative overflow-hidden">
+              {/* リーリー（歩いてるバージョン）がそっと寄り添う */}
+              <img
+                src="/lily-walk.png"
+                alt=""
+                className="hidden md:block absolute -right-6 -bottom-8 w-32 opacity-30 select-none pointer-events-none"
+                aria-hidden
+              />
+              <p className="relative font-[Klee_One] text-lg md:text-xl text-brown leading-relaxed">
                 舟橋村に暮らすすべての人が、<br />
                 年齢も出身も関係なく、<br />
                 顔を合わせて一緒に何かをする場を作ること。
@@ -190,10 +198,20 @@ export default function Home() {
       </section>
 
       {/* ===== STAMP PREVIEW ===== */}
-      <section className="py-24 bg-gradient-to-br from-cream to-cream-dark">
-        <div className="max-w-[1100px] mx-auto px-6">
+      <section className="py-24 bg-gradient-to-br from-cream to-cream-dark relative overflow-hidden">
+        {/* セクション背景にリーリーをぼんやり（歩いてるバージョン） */}
+        <img
+          src="/lily-walk.png"
+          alt=""
+          className="hidden md:block absolute -right-12 top-12 w-48 opacity-10 pointer-events-none select-none"
+          aria-hidden
+        />
+        <div className="max-w-[1100px] mx-auto px-6 relative">
           <Reveal>
-            <p className="font-[Klee_One] text-xs text-gold tracking-[0.2em] mb-3">DIGITAL STAMP RALLY</p>
+            <div className="flex items-center gap-3 mb-3">
+              <p className="font-[Klee_One] text-xs text-gold tracking-[0.2em]">DIGITAL STAMP RALLY</p>
+              <img src="/lily.png" alt="" className="w-8 h-8 select-none" aria-hidden />
+            </div>
             <h2 className="font-[Shippori_Mincho_B1] font-bold text-3xl md:text-4xl text-brown mb-4">スタンプラリー</h2>
             <p className="text-[15px] text-brown-mid mb-12 max-w-xl">
               イベントに参加するたびにスタンプが集まります。集めたスタンプは特典の「鍵」に。
@@ -314,6 +332,16 @@ export default function Home() {
       <section className="bg-brown text-white text-center py-20 px-6 relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full bg-gold/15 blur-3xl" />
         <div className="absolute -bottom-16 -left-16 w-[250px] h-[250px] rounded-full bg-green/10 blur-3xl" />
+
+        {/* リーリーが村から手招き */}
+        <div className="relative inline-block mb-6">
+          <img
+            src="/lily.png"
+            alt="レインボーリーリー"
+            className="w-24 mx-auto drop-shadow-2xl animate-[float_4s_ease-in-out_infinite] select-none"
+          />
+        </div>
+
         <Reveal>
           <h2 className="font-[Shippori_Mincho_B1] font-bold text-3xl md:text-4xl mb-4 relative">
             この景色に、<br />あなたも加わりませんか。

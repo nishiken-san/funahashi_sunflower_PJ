@@ -11,6 +11,24 @@ import {
   getPhotoUrl, signOut, syncGoogleAvatar,
 } from "@/lib/stamps";
 import type { UserProfile, StampRecord } from "@/lib/stamps";
+import PhotoModal from "@/components/PhotoModal";
+
+// ===== 現在の成長ステージを計算 =====
+// 月ごとの基準 + ボーナススタンプで段階アップ
+function getCurrentGrowthStage(stamps: StampRecord[]): number {
+  const now = new Date();
+  const month = now.getMonth() + 1; // 1-12
+
+  let stage = 0; // 種
+  if (month >= 6) stage = 1; // 6月: 芽
+  if (month >= 7) stage = 2; // 7月: 葉
+  if (month >= 8) stage = 3; // 8月: つぼみ
+  if (month >= 9) stage = 4; // 9月以降: 開花
+
+  // ボーナススタンプで成長促進（1個ごとに+1段階）
+  const bonusCount = stamps.filter(s => s.type === "photo" || s.type === "home").length;
+  return Math.min(GROWTH_STAGES.length - 1, stage + bonusCount);
+}
 
 export default function StampPage() {
   const [profile, setProfile] = useState<UserProfile | null | undefined>(undefined);
@@ -131,9 +149,16 @@ export default function StampPage() {
         <div className="max-w-md mx-auto px-6">
 
           {/* オーナーカード */}
-          <div className="bg-gradient-to-br from-cream-dark to-[#ede0c0] rounded-2xl p-5 mb-5 relative shadow-sm border border-brown/6">
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-brown/10 hover:border-gold transition shrink-0">
+          <div className="bg-gradient-to-br from-cream-dark via-[#ede0c0] to-gold-pale rounded-2xl p-5 mb-5 relative shadow-sm border border-brown/6 overflow-hidden">
+            {/* 背景のリーリー（薄く） */}
+            <img
+              src="/lily.png"
+              alt=""
+              className="absolute -right-4 -bottom-6 w-24 h-24 opacity-15 pointer-events-none select-none"
+              aria-hidden
+            />
+            <div className="relative flex items-center gap-3">
+              <Link href="/login" className="w-14 h-14 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-brown/10 hover:border-gold transition shrink-0 shadow-sm">
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -141,19 +166,20 @@ export default function StampPage() {
                 )}
               </Link>
               <div>
-                <h2 className="font-[Klee_One] text-base text-brown font-semibold">
+                <p className="text-[10px] text-gold font-[Klee_One] font-semibold tracking-wider">FIRST OWNER</p>
+                <h2 className="font-[Klee_One] text-lg text-brown font-semibold leading-tight">
                   {profile.name || "名前未設定"}
                 </h2>
                 <p className="text-[11px] text-brown-light">第1期オーナー（2026）</p>
               </div>
             </div>
             {!profile.name && (
-              <Link href="/login" className="absolute top-4 right-4 text-[10px] bg-gold text-brown px-2.5 py-1 rounded-full font-semibold">
+              <Link href="/login" className="absolute top-4 right-4 text-[10px] bg-gold text-brown px-2.5 py-1 rounded-full font-semibold shadow-sm hover:shadow z-10">
                 名前を設定する
               </Link>
             )}
             {isComplete && profile.name && (
-              <div className="absolute top-4 right-4 bg-gold text-brown text-[10px] font-semibold px-2.5 py-1 rounded-full">
+              <div className="absolute top-4 right-4 bg-gold text-brown text-[10px] font-semibold px-2.5 py-1 rounded-full shadow-sm z-10">
                 🎉 コンプリート
               </div>
             )}
@@ -190,11 +216,14 @@ export default function StampPage() {
 
           {/* ===== フォトアルバム ===== */}
           {photoStamps.length > 0 && (
-            <div className="bg-white rounded-2xl p-5 mb-6 border border-brown/6">
-              <h3 className="font-[Klee_One] text-sm text-brown font-semibold mb-3 flex items-center gap-2">
-                <span className="w-5 h-0.5 bg-gold inline-block" /> フォトアルバム
-              </h3>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="bg-white rounded-2xl p-5 mb-6 border border-brown/6 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-[Klee_One] text-sm text-brown font-semibold flex items-center gap-2">
+                  <span className="w-5 h-0.5 bg-gold inline-block" /> フォトアルバム
+                </h3>
+                <span className="text-[11px] text-brown-light">{photoStamps.length}枚</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 {photoStamps.map(s => (
                   <AlbumPhoto key={s.id} record={s} />
                 ))}
@@ -249,23 +278,40 @@ export default function StampPage() {
             )}
           </div>
 
-          {/* 種まき成長ステージ */}
-          {hasStampInList(stamps, "seed") && (
-            <div className="bg-white rounded-2xl p-5 mb-6 border border-brown/6">
-              <h3 className="font-[Klee_One] text-sm text-brown font-semibold mb-4">🌱 種まきスタンプの成長</h3>
-              <div className="flex justify-between">
-                {GROWTH_STAGES.map((g, i) => (
-                  <div key={g.stage} className="text-center flex-1">
-                    <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center text-lg mb-1 ${i === 0 ? "bg-gold-pale ring-2 ring-gold/30" : "bg-cream-dark"}`}>
-                      {g.icon}
-                    </div>
-                    <span className="text-[10px] text-brown-light">{g.label}</span>
+          {/* 種まき成長ステージ（現在の段階のみ大きく表示） */}
+          {hasStampInList(stamps, "seed") && (() => {
+            const currentStage = getCurrentGrowthStage(stamps);
+            const stage = GROWTH_STAGES[currentStage];
+            const passedStages = GROWTH_STAGES.slice(0, currentStage);
+            return (
+              <div className="bg-gradient-to-br from-green-light/40 to-cream rounded-2xl p-6 mb-6 border border-green/20 text-center">
+                <h3 className="font-[Klee_One] text-sm text-brown font-semibold mb-4">
+                  🌱 あなたのひまわり
+                </h3>
+                {/* 現在の段階：大きく表示 */}
+                <div className="inline-block bg-white rounded-full w-28 h-28 flex items-center justify-center shadow-md mb-3 border-4 border-gold/30">
+                  <span className="text-6xl">{stage.icon}</span>
+                </div>
+                <p className="font-[Klee_One] text-base text-green font-bold mb-1">
+                  「{stage.label}」のステージ
+                </p>
+                <p className="text-[11px] text-brown-light mb-3">
+                  畑のひまわりの成長に合わせて変化します
+                </p>
+                {/* 通過した段階のミニ表示（あれば） */}
+                {passedStages.length > 0 && (
+                  <div className="flex items-center justify-center gap-1.5 mt-2">
+                    <span className="text-[10px] text-brown-light mr-1">これまで:</span>
+                    {passedStages.map((g, i) => (
+                      <span key={i} className="text-base opacity-60">{g.icon}</span>
+                    ))}
+                    <span className="text-base text-brown-light">→</span>
+                    <span className="text-base">{stage.icon}</span>
                   </div>
-                ))}
+                )}
               </div>
-              <p className="text-[10px] text-brown-light text-center mt-3">畑のひまわりの成長に合わせて変化します</p>
-            </div>
-          )}
+            );
+          })()}
 
           {/* 特典 */}
           <div className="bg-white rounded-2xl p-5 mb-6 border border-brown/6">
@@ -331,9 +377,12 @@ export default function StampPage() {
   );
 }
 
-// ===== スタンプスロット（写真URLは遅延ロード）=====
+// ===== スタンプスロット =====
+// 取得済み: 写真があれば大きく表示、なければアイコン大きめ表示
+// 未取得: 小さめのグレーアイコン
 function StampSlot({ stamp, record }: { stamp: StampDef; record?: StampRecord }) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     if (record?.photo_path) {
@@ -342,26 +391,85 @@ function StampSlot({ stamp, record }: { stamp: StampDef; record?: StampRecord })
   }, [record?.photo_path]);
 
   const acquired = !!record;
-  return (
-    <div className={`rounded-2xl p-4 text-center border-2 transition ${acquired ? "bg-green-light border-green" : "bg-white border-dashed border-brown/12"}`}>
-      {acquired && photoUrl ? (
-        <img src={photoUrl} alt={stamp.name} className="w-12 h-12 rounded-lg object-cover mx-auto mb-2 border border-white shadow-sm" />
-      ) : (
-        <div className={`w-12 h-12 rounded-full mx-auto flex items-center justify-center text-2xl mb-2 ${acquired ? "bg-white shadow-sm" : "bg-brown/5"}`}>
-          {stamp.icon}
+
+  // 取得済み（写真あり）: 写真を大きく主役にする ＆ タップで拡大
+  if (acquired && photoUrl) {
+    const acquiredAt = new Date(record!.acquired_at).toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" });
+    return (
+      <>
+        <div className="rounded-2xl overflow-hidden border-2 border-green shadow-sm bg-white">
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="block w-full relative aspect-square cursor-zoom-in group"
+            aria-label={`${stamp.name}の写真を拡大表示`}
+          >
+            <img
+              src={photoUrl}
+              alt={stamp.name}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            {/* 拡大ヒント（ホバー時） */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <span className="bg-white/90 text-brown text-xs px-3 py-1.5 rounded-full font-semibold">🔍 拡大</span>
+            </div>
+            {/* スタンプアイコンを右上にバッジ */}
+            <div className="absolute top-2 right-2 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-xl ring-2 ring-green pointer-events-none">
+              {stamp.icon}
+            </div>
+            {/* 取得済みリボン */}
+            <div className="absolute top-2 left-2 bg-green text-white text-[9px] font-[Klee_One] font-semibold px-2 py-0.5 rounded-full shadow pointer-events-none">
+              ✓ 取得済
+            </div>
+          </button>
+          <div className="px-3 py-2 bg-green/5">
+            <p className="font-[Klee_One] text-xs font-semibold text-green text-center">{stamp.name}</p>
+            <p className="text-[10px] text-green/70 text-center mt-0.5">
+              {new Date(record!.acquired_at).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })}取得
+            </p>
+          </div>
         </div>
-      )}
-      <p className={`font-[Klee_One] text-xs font-semibold ${acquired ? "text-green" : "text-brown-mid"}`}>
-        {stamp.name}
-      </p>
-      {acquired ? (
-        <p className="text-[10px] text-green mt-0.5">
-          {new Date(record!.acquired_at).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })} 取得
-        </p>
-      ) : (
-        <p className="text-[10px] text-brown-light mt-0.5">{stamp.month}</p>
-      )}
-      {stamp.isBonus && !acquired && (
+        {modalOpen && (
+          <PhotoModal
+            src={photoUrl}
+            alt={stamp.name}
+            caption={`${stamp.name}スタンプ・${acquiredAt}`}
+            onClose={() => setModalOpen(false)}
+          />
+        )}
+      </>
+    );
+  }
+
+  // 取得済み（写真なし）: アイコン大きめ
+  if (acquired) {
+    return (
+      <div className="rounded-2xl overflow-hidden border-2 border-green bg-green-light">
+        <div className="aspect-square flex items-center justify-center bg-white relative">
+          <span className="text-6xl">{stamp.icon}</span>
+          <div className="absolute top-2 left-2 bg-green text-white text-[9px] font-[Klee_One] font-semibold px-2 py-0.5 rounded-full shadow">
+            ✓ 取得済
+          </div>
+        </div>
+        <div className="px-3 py-2 bg-green/5">
+          <p className="font-[Klee_One] text-xs font-semibold text-green text-center">{stamp.name}</p>
+          <p className="text-[10px] text-green/70 text-center mt-0.5">
+            {new Date(record!.acquired_at).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })}取得
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 未取得: 小さめのグレーアイコン
+  return (
+    <div className="rounded-2xl p-4 text-center border-2 border-dashed border-brown/15 bg-white aspect-square flex flex-col items-center justify-center">
+      <div className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-2xl mb-2 bg-brown/5 opacity-60">
+        {stamp.icon}
+      </div>
+      <p className="font-[Klee_One] text-xs font-semibold text-brown-mid">{stamp.name}</p>
+      <p className="text-[10px] text-brown-light mt-0.5">{stamp.month}</p>
+      {stamp.isBonus && (
         <span className="inline-block mt-1 text-[9px] text-gold bg-gold-pale px-1.5 py-0.5 rounded-full">ボーナス</span>
       )}
     </div>
@@ -369,8 +477,10 @@ function StampSlot({ stamp, record }: { stamp: StampDef; record?: StampRecord })
 }
 
 // ===== フォトアルバムのサムネイル =====
+// 2カラム表示で大きめ、タップで全画面拡大
 function AlbumPhoto({ record }: { record: StampRecord }) {
   const [url, setUrl] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const def = STAMPS.find(d => d.type === record.type);
 
   useEffect(() => {
@@ -379,25 +489,58 @@ function AlbumPhoto({ record }: { record: StampRecord }) {
     }
   }, [record.photo_path]);
 
+  const acquiredAt = new Date(record.acquired_at).toLocaleDateString("ja-JP", {
+    year: "numeric", month: "long", day: "numeric",
+  });
+
   return (
-    <div className="relative aspect-square rounded-xl overflow-hidden bg-brown/5">
-      {url ? (
-        <img
-          src={url}
-          alt={def?.name ?? ""}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-2xl">
+    <>
+      <button
+        type="button"
+        onClick={() => url && setModalOpen(true)}
+        disabled={!url}
+        className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-cream-dark to-cream shadow-sm border border-brown/10 group block w-full cursor-zoom-in disabled:cursor-default"
+        aria-label={`${def?.name ?? ""}の写真を拡大表示`}
+      >
+        {url ? (
+          <img
+            src={url}
+            alt={def?.name ?? ""}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-5xl opacity-40">
+            {def?.icon ?? "🌻"}
+          </div>
+        )}
+        {/* ホバー時拡大アイコン */}
+        {url && (
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <span className="bg-white/90 text-brown text-xs px-3 py-1.5 rounded-full font-semibold shadow">🔍 拡大</span>
+          </div>
+        )}
+        {/* スタンプアイコンバッジ */}
+        <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-white/95 backdrop-blur shadow-md flex items-center justify-center text-base">
           {def?.icon ?? "🌻"}
         </div>
+        {/* スタンプ名と日付を下部にオーバーレイ */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent px-3 py-2.5 text-left">
+          <p className="text-xs text-white font-[Klee_One] font-semibold leading-tight drop-shadow">
+            {def?.name}
+          </p>
+          <p className="text-[10px] text-white/85 mt-0.5 drop-shadow">
+            {new Date(record.acquired_at).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })}
+          </p>
+        </div>
+      </button>
+      {modalOpen && url && (
+        <PhotoModal
+          src={url}
+          alt={def?.name ?? ""}
+          caption={`${def?.name}スタンプ・${acquiredAt}`}
+          onClose={() => setModalOpen(false)}
+        />
       )}
-      {/* スタンプ名ラベル */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1.5">
-        <p className="text-[9px] text-white font-[Klee_One] text-center leading-tight">
-          {def?.name}
-        </p>
-      </div>
-    </div>
+    </>
   );
 }

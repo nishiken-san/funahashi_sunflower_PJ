@@ -1,13 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { fetchProfile } from "@/lib/stamps";
 
 export default function Nav() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // ホーム以外のページは常に「スクロール済み」スタイル（cream背景）にする
+  // → cream背景のページで白文字が見えない問題を回避
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -29,12 +35,15 @@ export default function Nav() {
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
-  const base = scrolled
+  // ホーム以外は scrolled=true 扱いにする
+  const effectiveScrolled = !isHome || scrolled;
+
+  const base = effectiveScrolled
     ? "fixed top-0 left-0 right-0 z-50 px-6 py-3 bg-cream/95 backdrop-blur-md shadow-sm transition-all duration-300"
     : "fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300";
 
-  const textColor = scrolled ? "text-brown" : "text-white";
-  const linkStyle = scrolled
+  const textColor = effectiveScrolled ? "text-brown" : "text-white";
+  const linkStyle = effectiveScrolled
     ? "text-xs font-medium px-3 py-1.5 rounded-full border border-brown/10 text-brown-mid hover:bg-gold-pale transition"
     : "text-xs font-medium px-3 py-1.5 rounded-full border border-white/15 text-white/80 hover:bg-white/10 transition";
 
@@ -68,7 +77,7 @@ export default function Nav() {
             {/* マイページボタン（PC・モバイル共通） */}
             <Link href={myPageHref}
               className={`text-xs font-semibold px-4 py-2 rounded-full transition-all flex items-center gap-1.5 ${
-                scrolled
+                effectiveScrolled
                   ? "bg-brown text-cream hover:bg-brown/80"
                   : "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
               }`}>
@@ -81,7 +90,7 @@ export default function Nav() {
             {/* モバイル: ハンバーガー */}
             <button onClick={() => setMenuOpen(!menuOpen)}
               className={`md:hidden text-xl w-9 h-9 flex items-center justify-center rounded-full transition ${
-                scrolled ? "text-brown hover:bg-brown/5" : "text-white hover:bg-white/10"
+                effectiveScrolled ? "text-brown hover:bg-brown/5" : "text-white hover:bg-white/10"
               }`}
               aria-label="メニュー">
               {menuOpen ? "✕" : "☰"}
