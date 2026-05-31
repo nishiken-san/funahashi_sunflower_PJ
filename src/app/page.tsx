@@ -273,7 +273,7 @@ export default function Home() {
                 <p className="text-[13px] text-brown-mid leading-relaxed mb-4">
                   第一回。みんなで畑に入って種をまき、その足で公園に行ってひまわり油のピザを焼く。
                   畑の隣では地元のおばあちゃんが野菜を売っていて、子どもたちはかかしを作っている。
-                  DAOワゴンが村を走り、スマホをかざすとスタンプが光る。
+                  レインボーリーリーも応援！スマホをかざすとスタンプが光る。
                 </p>
                 <p className="text-[13px] text-green font-semibold">参加者募集中</p>
               </div>
@@ -293,6 +293,10 @@ export default function Home() {
             </Reveal>
           </div>
 
+          {/* ===== NFTコミュニティ連携セクション（一時非表示） =====
+              CNP / NinjaDAO 等は直接の関連がないため、誤解防止のため非表示。
+              将来連携が決まったら下の {false && (...)} を外して復活可能。 */}
+          {false && (
           <Reveal>
             <div className="bg-gradient-to-br from-[#1a1832] to-[#2a1f3d] rounded-3xl p-8 md:p-10 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-[radial-gradient(circle,rgba(212,160,23,0.15),transparent_70%)]" />
@@ -322,6 +326,35 @@ export default function Home() {
                     🛠 一緒にプロダクトを作る
                   </div>
                 </div>
+              </div>
+            </div>
+          </Reveal>
+          )}
+
+          {/* ===== 代わりに：リーリーが応援しているシンプルな差し込み ===== */}
+          <Reveal>
+            <div className="bg-gradient-to-br from-gold-pale to-cream-dark rounded-3xl p-8 md:p-10 text-center relative overflow-hidden border border-gold/15">
+              <img
+                src="/lily-celebrate.png"
+                alt="レインボーリーリー"
+                className="hidden md:block absolute -right-4 -bottom-6 w-40 opacity-90 select-none pointer-events-none"
+                aria-hidden
+              />
+              <img
+                src="/lily-celebrate.png"
+                alt=""
+                className="md:hidden w-24 mx-auto mb-4 select-none"
+                aria-hidden
+              />
+              <div className="relative md:max-w-md md:mr-auto md:text-left">
+                <p className="font-[Klee_One] text-xs text-gold tracking-[0.2em] mb-3">CHEER</p>
+                <h3 className="font-[Shippori_Mincho_B1] font-bold text-xl md:text-2xl text-brown mb-3">
+                  レインボーリーリーも<br />応援しています！
+                </h3>
+                <p className="text-[13px] text-brown-mid leading-relaxed">
+                  村のマスコット・レインボーリーリーが、<br />
+                  みんなで畑を育てる半年間を見守ります。
+                </p>
               </div>
             </div>
           </Reveal>
