@@ -99,7 +99,7 @@ function StartInner() {
               </li>
               <li className="flex gap-2.5">
                 <span className="text-base shrink-0">🎁</span>
-                <span>集めると特典がアンロック（壁紙・翌年先行オーナー権など）</span>
+                <span>集めると特典がアンロック（壁紙・記念ステッカーなど）</span>
               </li>
               <li className="flex gap-2.5">
                 <span className="text-base shrink-0">♾️</span>

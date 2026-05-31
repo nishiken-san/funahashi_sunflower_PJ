@@ -179,11 +179,11 @@ export default function Home() {
             <div className="relative pl-12">
               <div className="absolute left-[18px] top-0 bottom-0 w-0.5 bg-gold/30" />
               {[
-                { month: "5月", title: "準備・オーナー募集", desc: "サイト公開、オーナー募集開始。委員会メンバーの紹介や畑の準備風景を共有します。", active: true },
+                { month: "5月", title: "準備期間", desc: "サイト公開と畑の準備。委員会メンバーの紹介や畑の準備風景を共有します。", active: true },
                 { month: "6月", title: "第一回 種まきイベント", desc: "みんなで畑に集合。名札を作り、区画に種をまき、公園でひまわり油のピザを一緒に作って食べます。", active: true },
                 { month: "7〜8月", title: "成長見守り・開花", desc: "委員会メンバーが定期的に畑を撮影し、成長の様子を共有。開花時には写真教室を開催。" },
                 { month: "9〜10月", title: "収穫・搾油", desc: "収穫祭を開催。搾油体験や料理教室で、自分たちが育てたひまわりの実りを味わいます。" },
-                { month: "11月〜", title: "振り返り・次年度へ", desc: "一年を振り返り、次年度の企画を考える。第1期オーナーの物語は、ここから始まります。" },
+                { month: "11月〜", title: "振り返り・次年度へ", desc: "一年を振り返り、次年度の企画を考える。参加者みんなの物語は、ここから始まります。" },
               ].map((item) => (
                 <div key={item.month} className="relative pb-10 last:pb-0">
                   <div className={`absolute -left-[39px] top-1 w-[18px] h-[18px] rounded-full border-[3px] border-gold z-10 ${item.active ? "bg-gold" : "bg-cream"}`} />
@@ -227,7 +227,7 @@ export default function Home() {
               {[
                 { icon: "📸", title: "自分だけのスタンプ", body: "イベント当日に撮った写真がスタンプに組み込まれ、世界にひとつだけのデザインになります。" },
                 { icon: "🌱", title: "育つスタンプ", body: "種まきスタンプは畑のひまわりと一緒に変化。種→芽→葉→つぼみ→開花の5段階で成長します。" },
-                { icon: "🔑", title: "スタンプが「鍵」になる", body: "スタンプ数に応じて特典がアンロック。畑ライブカメラ、記念壁紙、翌年の先行オーナー権など。" },
+                { icon: "🔑", title: "スタンプが「鍵」になる", body: "スタンプ数に応じて特典がアンロック。畑ライブカメラ、記念壁紙など、いろいろな特典が待っています。" },
                 { icon: "♾️", title: "ずっと残る記録", body: "参加の記録は消えません。10年後にも振り返れる、あなたの半年間の物語。" },
               ].map((feat, i) => (
                 <Reveal key={feat.title} delay={i}>
@@ -328,12 +328,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== CTA ===== */}
+      {/* ===== CTA（オーナー制度版・一時非表示） ===== */}
+      {false && (
       <section className="bg-brown text-white text-center py-20 px-6 relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full bg-gold/15 blur-3xl" />
         <div className="absolute -bottom-16 -left-16 w-[250px] h-[250px] rounded-full bg-green/10 blur-3xl" />
-
-        {/* リーリーが村から手招き */}
         <div className="relative inline-block mb-6">
           <img
             src="/lily.png"
@@ -341,7 +340,6 @@ export default function Home() {
             className="w-24 mx-auto drop-shadow-2xl animate-[float_4s_ease-in-out_infinite] select-none"
           />
         </div>
-
         <Reveal>
           <h2 className="font-[Shippori_Mincho_B1] font-bold text-3xl md:text-4xl mb-4 relative">
             この景色に、<br />あなたも加わりませんか。
@@ -356,6 +354,38 @@ export default function Home() {
             className="inline-flex items-center gap-2 bg-gold text-brown px-10 py-4 rounded-full font-[Klee_One] font-semibold text-[15px] shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all relative"
           >
             オーナーになる
+          </Link>
+        </Reveal>
+      </section>
+      )}
+
+      {/* ===== CTA（スタンプラリーへの誘導・現在表示中） ===== */}
+      <section className="bg-brown text-white text-center py-20 px-6 relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full bg-gold/15 blur-3xl" />
+        <div className="absolute -bottom-16 -left-16 w-[250px] h-[250px] rounded-full bg-green/10 blur-3xl" />
+
+        <div className="relative inline-block mb-6">
+          <img
+            src="/lily.png"
+            alt="レインボーリーリー"
+            className="w-24 mx-auto drop-shadow-2xl animate-[float_4s_ease-in-out_infinite] select-none"
+          />
+        </div>
+
+        <Reveal>
+          <h2 className="font-[Shippori_Mincho_B1] font-bold text-3xl md:text-4xl mb-4 relative">
+            この景色に、<br />あなたも加わりませんか。
+          </h2>
+        </Reveal>
+        <Reveal delay={1}>
+          <p className="text-white/60 mb-8 relative">イベントに参加して、みんなで畑を育てよう。</p>
+        </Reveal>
+        <Reveal delay={2}>
+          <Link
+            href="/stamp"
+            className="inline-flex items-center gap-2 bg-gold text-brown px-10 py-4 rounded-full font-[Klee_One] font-semibold text-[15px] shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all relative"
+          >
+            スタンプラリーを見る
           </Link>
         </Reveal>
       </section>

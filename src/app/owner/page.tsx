@@ -3,10 +3,63 @@ import Footer from "@/components/Footer";
 import Reveal from "@/components/RevealOnScroll";
 import Link from "next/link";
 
+/**
+ * オーナー制度ページ
+ *
+ * ※ 現在「オーナー制度」セクションは一時非表示中（誤解防止のため）。
+ *   このページに直接URLでアクセスした場合のみ「準備中」を表示する。
+ *
+ *   元のオーナー説明UIは下の `false &&` ブロックに残してあり、
+ *   復活させたい時はそのブロックを表示するように戻すだけでOK。
+ */
 export default function OwnerPage() {
   return (
     <>
       <Nav />
+      <div className="pt-28 pb-24 bg-cream min-h-screen">
+        <div className="max-w-md mx-auto px-6">
+          <Reveal>
+            <div className="bg-white rounded-3xl p-8 text-center border border-brown/6 shadow-sm">
+              <div className="text-5xl mb-4 opacity-40">🌻</div>
+              <p className="font-[Klee_One] text-xs text-gold tracking-[0.2em] mb-3">COMING SOON</p>
+              <h1 className="font-[Shippori_Mincho_B1] font-bold text-2xl text-brown mb-4">
+                オーナー制度は<br />現在準備中です
+              </h1>
+              <p className="text-sm text-brown-mid leading-relaxed mb-6">
+                サンフラワープロジェクトのオーナー制度は<br />
+                現在準備中です。<br />
+                詳細が決まり次第お知らせします。
+              </p>
+              <div className="bg-cream rounded-2xl p-4 mb-6">
+                <p className="text-xs text-brown-mid">
+                  まずはイベントに参加して<br />
+                  スタンプを集めませんか？
+                </p>
+              </div>
+              <Link
+                href="/stamp"
+                className="block w-full text-center bg-brown text-cream px-6 py-3 rounded-xl text-sm font-semibold hover:bg-brown/90 transition mb-2"
+              >
+                スタンプラリーを見る →
+              </Link>
+              <Link
+                href="/"
+                className="block text-xs text-brown-light underline"
+              >
+                トップへ戻る
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+
+      {/*
+        ====================================
+        ↓ 元のオーナー制度UI（一時非表示中）
+        復活させる時は下の {false && (...)} を外す
+        ====================================
+      */}
+      {false && (
       <div className="pt-28 pb-24 bg-cream">
         <div className="max-w-[1100px] mx-auto px-6">
           <Reveal>
@@ -78,6 +131,7 @@ export default function OwnerPage() {
           </Reveal>
         </div>
       </div>
+      )}
       <Footer />
     </>
   );

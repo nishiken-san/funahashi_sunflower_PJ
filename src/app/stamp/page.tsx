@@ -166,11 +166,12 @@ export default function StampPage() {
                 )}
               </Link>
               <div>
-                <p className="text-[10px] text-gold font-[Klee_One] font-semibold tracking-wider">FIRST OWNER</p>
+                {/* オーナー制度に関する表記は一時非表示 */}
+                <p className="text-[10px] text-gold font-[Klee_One] font-semibold tracking-wider">PARTICIPANT 2026</p>
                 <h2 className="font-[Klee_One] text-lg text-brown font-semibold leading-tight">
                   {profile.name || "名前未設定"}
                 </h2>
-                <p className="text-[11px] text-brown-light">第1期オーナー（2026）</p>
+                <p className="text-[11px] text-brown-light">サンフラワープロジェクト参加者</p>
               </div>
             </div>
             {!profile.name && (
@@ -359,7 +360,9 @@ export default function StampPage() {
                 { href: "/field", icon: "🗺️", label: "畑マップ", sub: "準備中", subColor: "text-gold" },
                 { href: "/submit", icon: "📸", label: "写真を投稿", sub: "ボーナススタンプ取得" },
                 { href: "/field", icon: "📹", label: "畑ライブカメラ", sub: "準備中", subColor: "text-gold" },
-                { href: "/owner", icon: "🌻", label: "オーナー情報", sub: "制度と申込" },
+                { href: "/me", icon: "🔍", label: "アカウント診断", sub: "認証状態を確認" },
+                // ↓ オーナー制度に関わるため一時非表示
+                // { href: "/owner", icon: "🌻", label: "オーナー情報", sub: "制度と申込" },
               ].map(item => (
                 <Link
                   key={item.label}

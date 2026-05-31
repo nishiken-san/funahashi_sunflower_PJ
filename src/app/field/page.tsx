@@ -14,7 +14,7 @@ export default function FieldPage() {
               畑マップ
             </h2>
             <p className="text-[15px] text-brown-mid max-w-2xl mb-12">
-              区画ごとのオーナー情報やひまわりの成長状況をここで確認できます。
+              畑の区画とひまわりの成長状況をここで確認できます。
             </p>
           </Reveal>
 
@@ -24,7 +24,7 @@ export default function FieldPage() {
               <h3 className="font-[Klee_One] text-lg text-brown mb-2">準備中</h3>
               <p className="text-[13px] text-brown-light max-w-sm leading-relaxed">
                 種まきイベント後、ここに畑の区画マップが表示されます。
-                オーナーの方は自分の区画のひまわりの成長を確認できるようになります。
+                参加者の方は自分の区画のひまわりの成長を確認できるようになります。
               </p>
               <div className="mt-8 grid grid-cols-3 gap-4 max-w-xs">
                 {["定点観測写真", "成長ステージ", "区画検索"].map((label) => (

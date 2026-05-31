@@ -47,6 +47,7 @@ export default function Nav() {
     ? "text-xs font-medium px-3 py-1.5 rounded-full border border-brown/10 text-brown-mid hover:bg-gold-pale transition"
     : "text-xs font-medium px-3 py-1.5 rounded-full border border-white/15 text-white/80 hover:bg-white/10 transition";
 
+  // ※ "/owner" は一時的に非表示中（オーナー制度の項目）
   const navLinks = [
     { href: "/#purpose", label: "想い" },
     { href: "/#themes", label: "テーマ" },
@@ -54,7 +55,7 @@ export default function Nav() {
     { href: "/stamp", label: "スタンプ" },
     { href: "/#event", label: "祭り" },
     { href: "/field", label: "畑マップ" },
-    { href: "/owner", label: "オーナー" },
+    // { href: "/owner", label: "オーナー" },  // 一時非表示
   ];
 
   return (

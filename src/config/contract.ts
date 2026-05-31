@@ -60,11 +60,13 @@ export interface RewardDef {
   icon: string;
   comingSoon?: boolean;
 }
+// ※ "翌年先行オーナー権" はオーナー制度の項目のため一時非表示中
 export const REWARDS: readonly RewardDef[] = [
   { stampsRequired: 1, title: "畑ライブカメラ", description: "自分の区画の映像にアクセス", icon: "📹", comingSoon: true },
   { stampsRequired: 2, title: "記念壁紙", description: "スマホ壁紙画像をダウンロード", icon: "📱" },
   { stampsRequired: 3, title: "バーチャル畑", description: "バーチャル空間でひまわり畑を散歩", icon: "🌐", comingSoon: true },
-  { stampsRequired: 4, title: "翌年先行オーナー権", description: "来年の区画を優先的に確保", icon: "⭐" },
+  { stampsRequired: 4, title: "コンプリート記念ステッカー", description: "全スタンプ獲得記念のオリジナルステッカー", icon: "🎖️", comingSoon: true },
+  // { stampsRequired: 4, title: "翌年先行オーナー権", description: "来年の区画を優先的に確保", icon: "⭐" },
 ] as const;
 
 // ===== コントラクト設定 =====
