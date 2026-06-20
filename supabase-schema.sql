@@ -58,7 +58,7 @@ create trigger on_auth_user_created
 create table public.stamps (
   id uuid not null default gen_random_uuid() primary key,
   user_id uuid not null references public.profiles(id) on delete cascade,
-  type text not null,           -- 'seed','water','bloom','harvest','photo','home'
+  type text not null,           -- 'seed','water','bloom','harvest','photo','home','ninket'
   year int not null default 2026,
   photo_path text,              -- Storage内のファイルパス（本人のみアクセス可）
   acquired_at timestamptz not null default now(),
@@ -87,7 +87,7 @@ create policy "stamps_select_own"
 -- サーバーサイドでスタンプ取得可否を判定するための設定
 create table public.active_events (
   id uuid not null default gen_random_uuid() primary key,
-  stamp_type text not null,       -- 'seed','water','bloom','harvest','photo','home'
+  stamp_type text not null,       -- 'seed','water','bloom','harvest','photo','home','ninket'
   year int not null default 2026,
   starts_at timestamptz not null,
   ends_at timestamptz not null,

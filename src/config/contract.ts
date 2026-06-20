@@ -13,11 +13,12 @@ export const TOKEN_IDS = {
   HARVEST_2026: 4001,// 収穫
   PHOTO_2026: 5001,  // フォトコンテスト（ボーナス）
   HOME_2026: 6001,   // 自宅栽培（ボーナス）
+  NINKET_2026: 7001, // 2026にんケット ブース来場（ボーナス）
   COMPLETE_2026: 9001,
 } as const;
 
 // ===== スタンプ定義 =====
-export type StampType = "seed" | "water" | "bloom" | "harvest" | "photo" | "home";
+export type StampType = "seed" | "water" | "bloom" | "harvest" | "photo" | "home" | "ninket";
 
 export interface StampDef {
   id: number;
@@ -32,12 +33,13 @@ export interface StampDef {
 }
 
 export const STAMPS: StampDef[] = [
-  { id: TOKEN_IDS.SEED_2026, type: "seed", name: "種まき", icon: "🌱", month: "6月", description: "畑で種まきイベントに参加", isBonus: false, requiresGPS: true, requiresPhoto: true },
-  { id: TOKEN_IDS.WATER_2026, type: "water", name: "水まき", icon: "💧", month: "6〜7月", description: "畑に水やりに来てくれた", isBonus: false, requiresGPS: true, requiresPhoto: true },
-  { id: TOKEN_IDS.BLOOM_2026, type: "bloom", name: "開花", icon: "🌻", month: "8月", description: "開花したひまわり畑を訪問", isBonus: false, requiresGPS: true, requiresPhoto: true },
-  { id: TOKEN_IDS.HARVEST_2026, type: "harvest", name: "収穫", icon: "🫙", month: "9〜10月", description: "収穫イベントに参加", isBonus: false, requiresGPS: true, requiresPhoto: true },
+  { id: TOKEN_IDS.SEED_2026, type: "seed", name: "種まき", icon: "🌱", month: "6月", description: "畑で種まきイベントに参加", isBonus: false, requiresGPS: false, requiresPhoto: true },
+  { id: TOKEN_IDS.WATER_2026, type: "water", name: "水まき", icon: "💧", month: "6〜7月", description: "畑に水やりに来てくれた", isBonus: false, requiresGPS: false, requiresPhoto: true },
+  { id: TOKEN_IDS.BLOOM_2026, type: "bloom", name: "開花", icon: "🌻", month: "8月", description: "開花したひまわり畑を訪問", isBonus: false, requiresGPS: false, requiresPhoto: true },
+  { id: TOKEN_IDS.HARVEST_2026, type: "harvest", name: "収穫", icon: "🫙", month: "9〜10月", description: "収穫イベントに参加", isBonus: false, requiresGPS: false, requiresPhoto: true },
   { id: TOKEN_IDS.PHOTO_2026, type: "photo", name: "フォトコンテスト", icon: "📸", month: "8月", description: "ひまわりの写真を投稿", isBonus: true, requiresGPS: false, requiresPhoto: true },
   { id: TOKEN_IDS.HOME_2026, type: "home", name: "自宅栽培", icon: "🏠", month: "通年", description: "自宅で育てたひまわりの写真を投稿", isBonus: true, requiresGPS: false, requiresPhoto: true },
+  { id: TOKEN_IDS.NINKET_2026, type: "ninket", name: "にんケット来場", icon: "🎪", month: "2026にんケット", description: "2026にんケットでブースに来場", isBonus: true, requiresGPS: false, requiresPhoto: true },
 ];
 
 export const BASIC_STAMPS = STAMPS.filter(s => !s.isBonus);

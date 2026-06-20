@@ -26,7 +26,8 @@ function getCurrentGrowthStage(stamps: StampRecord[]): number {
   if (month >= 9) stage = 4; // 9月以降: 開花
 
   // ボーナススタンプで成長促進（1個ごとに+1段階）
-  const bonusCount = stamps.filter(s => s.type === "photo" || s.type === "home").length;
+  const bonusTypes = new Set(BONUS_STAMPS.map(s => s.type));
+  const bonusCount = stamps.filter(s => bonusTypes.has(s.type)).length;
   return Math.min(GROWTH_STAGES.length - 1, stage + bonusCount);
 }
 
@@ -75,6 +76,8 @@ export default function StampPage() {
   const totalCount = stamps.length;
   const isComplete = basicCount >= 4;
   const photoStamps = stamps.filter(s => s.photo_path);
+  const ninketStamp = BONUS_STAMPS.find(s => s.type === "ninket");
+  const ninketRecord = stamps.find(s => s.type === "ninket");
 
   // ===== 未ログイン → プレビュー =====
   if (!profile) {
@@ -209,11 +212,29 @@ export default function StampPage() {
           <h3 className="font-[Klee_One] text-sm text-brown font-semibold mb-3 flex items-center gap-2">
             <span className="w-5 h-0.5 bg-green inline-block" /> ボーナススタンプ
           </h3>
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className={`grid grid-cols-2 gap-3 ${ninketRecord ? "mb-3" : "mb-6"}`}>
             {BONUS_STAMPS.map(s => (
               <StampSlot key={s.type} stamp={s} record={stamps.find(r => r.type === s.type)} />
             ))}
           </div>
+          {ninketStamp && ninketRecord && (
+            <div className="bg-green/10 border border-green/20 rounded-2xl px-4 py-3 mb-6 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
+                {ninketStamp.icon}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-[Klee_One] text-xs text-green font-semibold">
+                  {ninketStamp.name}スタンプ取得済み
+                </p>
+                <p className="text-[10px] text-brown-light">
+                  {new Date(ninketRecord.acquired_at).toLocaleDateString("ja-JP", {
+                    year: "numeric", month: "long", day: "numeric",
+                  })} にブース来場を記録しました
+                </p>
+              </div>
+              <span className="text-[10px] text-green bg-white px-2 py-1 rounded-full shrink-0">取得済</span>
+            </div>
+          )}
 
           {/* ===== フォトアルバム ===== */}
           {photoStamps.length > 0 && (

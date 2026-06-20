@@ -24,7 +24,7 @@ model User {
 model Stamp {
   id         String   @id @default(cuid())
   userId     String
-  type       String   // "seed" | "water" | "bloom" | "harvest" | "photo" | "home"
+  type       String   // "seed" | "water" | "bloom" | "harvest" | "photo" | "home" | "ninket"
   year       Int      @default(2026)
   acquiredAt DateTime @default(now())
   photoId    String?  // 取得時の写真（任意）

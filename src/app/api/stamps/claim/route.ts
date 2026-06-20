@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerComponentClient, createAdminClient } from "@/lib/supabase-server";
-import { FIELD_CENTER } from "@/config/contract";
+import { FIELD_CENTER, STAMPS } from "@/config/contract";
 
 // ===== POST /api/stamps/claim =====
 // スタンプ取得リクエストを検証し、問題なければDBに登録
@@ -55,13 +55,14 @@ export async function POST(req: NextRequest) {
     };
 
     // 許可されたスタンプタイプのみ受け付け
-    const allowedTypes = ["seed", "water", "bloom", "harvest", "photo", "home"];
-    if (!type || !allowedTypes.includes(type)) {
+    const stampDef = type ? STAMPS.find(stamp => stamp.type === type) : undefined;
+    if (!stampDef) {
       return NextResponse.json(
         { error: "無効なスタンプタイプです" },
         { status: 400 }
       );
     }
+    const stampType = stampDef.type;
 
     // yearの範囲チェック
     if (year < 2026 || year > 2030) {
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest) {
     const { data: event } = await admin
       .from("active_events")
       .select("*")
-      .eq("stamp_type", type)
+      .eq("stamp_type", stampType)
       .eq("year", year)
       .eq("is_active", true)
       .gte("ends_at", new Date().toISOString())
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     // active_eventsが未設定の場合はGPS検証をスキップ（テスト・準備期間対応）
-    const requiresGPS = event?.requires_gps ?? false;
+    const requiresGPS = stampDef.requiresGPS && (event?.requires_gps ?? false);
 
     // --- 4. GPS検証（イベントで要求された場合のみ） ---
     if (requiresGPS) {
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
       .from("stamps")
       .select("id")
       .eq("user_id", user.id)
-      .eq("type", type)
+      .eq("type", stampType)
       .eq("year", year)
       .maybeSingle();
 
@@ -142,7 +143,7 @@ export async function POST(req: NextRequest) {
       .from("stamps")
       .insert({
         user_id: user.id,
-        type,
+        type: stampType,
         year,
         photo_path: photoPath || null,
       })
